@@ -17,20 +17,16 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=${k3s_channel} K3S_TOKEN=${k3
     --node-taint node-role.kubernetes.io/master:NoSchedule \
     --kubelet-arg 'cloud-provider=external'
 
-# manifestos addons
+# wait for k3s to have generated manifests directory...
 while ! test -d /var/lib/rancher/k3s/server/manifests; do
     echo "Waiting for '/var/lib/rancher/k3s/server/manifests'"
     sleep 1
 done
 
-# ccm
+# configure and install latest cloud-controller-manager from hetzner...
 kubectl -n kube-system create secret generic hcloud --from-literal=token=${hcloud_token} --from-literal=network=${hcloud_network}
-cat <<'EOF' | sudo tee /var/lib/rancher/k3s/server/manifests/hcloud-ccm.yaml
-${ccm_manifest}
-EOF
+curl -sL https://github.com/hetznercloud/hcloud-cloud-controller-manager/releases/latest/download/ccm.yaml | sudo tee /var/lib/rancher/k3s/server/manifests/hcloud-ccm.yaml
 
-# csi
+# configure and install latest container-storage-interface from hetzner...
 kubectl -n kube-system create secret generic hcloud-csi --from-literal=token=${hcloud_token}
-cat <<'EOF' | sudo tee /var/lib/rancher/k3s/server/manifests/hcloud-csi.yaml
-${csi_manifest}
-EOF
+curl -sL https://raw.githubusercontent.com/hetznercloud/csi-driver/main/deploy/kubernetes/hcloud-csi.yml | sudo tee /var/lib/rancher/k3s/server/manifests/hcloud-csi.yaml
