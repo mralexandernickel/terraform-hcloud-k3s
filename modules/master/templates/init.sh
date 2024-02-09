@@ -22,11 +22,3 @@ while ! test -d /var/lib/rancher/k3s/server/manifests; do
     echo "Waiting for '/var/lib/rancher/k3s/server/manifests'"
     sleep 1
 done
-
-# configure and install latest cloud-controller-manager from hetzner...
-kubectl -n kube-system create secret generic hcloud --from-literal=token=${hcloud_token} --from-literal=network=${hcloud_network}
-curl -sL https://github.com/hetznercloud/hcloud-cloud-controller-manager/releases/latest/download/ccm.yaml | sudo tee /var/lib/rancher/k3s/server/manifests/hcloud-ccm.yaml
-
-# configure and install latest container-storage-interface from hetzner...
-kubectl -n kube-system create secret generic hcloud-csi --from-literal=token=${hcloud_token}
-curl -sL https://raw.githubusercontent.com/hetznercloud/csi-driver/main/deploy/kubernetes/hcloud-csi.yml | sudo tee /var/lib/rancher/k3s/server/manifests/hcloud-csi.yaml
