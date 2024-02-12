@@ -44,8 +44,8 @@ resource "hcloud_ssh_key" "default" {
 }
 
 module "cluster" {
-  source  = "cicdteam/k3s/hcloud"
-  version = "0.1.2"
+  source  = "mralexandernickel/k3s/hcloud"
+  version = "0.2.1"
   hcloud_token = var.hcloud_token
   ssh_keys = [hcloud_ssh_key.default.id]
 }
@@ -79,9 +79,6 @@ This will do the following:
 * provisions Hetzner Cloud Instances with Ubuntu 20.04 (the instance type/size of the `master` and the `node` may be different)
 * installs K3S components and supporting binaries
 * joins the nodes in the cluster
-  * installs Hetzner Cloud add-ons:
-    * [CSI](https://github.com/hetznercloud/csi-driver) (Container Storage Interface driver for Hetzner Cloud Volumes)
-    * [CCM](https://github.com/hetznercloud/hcloud-cloud-controller-manager) (Kubernetes cloud-controller-manager for Hetzner Cloud)
 * creates two bash scripts to setup/destroy new context in the kubectl admin config file for local `kubectl`
 
 After applying the Terraform plan you'll see several output variables like the master public IP and nodes IPs.
