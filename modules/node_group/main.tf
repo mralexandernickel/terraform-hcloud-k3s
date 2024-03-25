@@ -1,13 +1,3 @@
-data "template_file" "node_init" {
-  template = file("${path.module}/templates/init.sh")
-  vars = {
-    k3s_token   = var.k3s_token
-    k3s_channel = var.k3s_channel
-
-    master_ipv4 = var.master_ipv4
-  }
-}
-
 resource "hcloud_server" "node" {
   count       = var.node_count
   name        = "${var.cluster_name}-${var.node_type}-${count.index}"
@@ -15,7 +5,12 @@ resource "hcloud_server" "node" {
   datacenter  = var.datacenter
   image       = var.image
   ssh_keys    = var.ssh_keys
-  user_data   = data.template_file.node_init.rendered
+  user_data   = templatefile("${path.module}/templates/init.sh", {
+    k3s_token   = var.k3s_token
+    k3s_channel = var.k3s_channel
+
+    master_ipv4 = var.master_ipv4
+  })
 }
 
 resource "hcloud_server_network" "node" {
